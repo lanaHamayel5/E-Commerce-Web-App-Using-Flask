@@ -1,5 +1,7 @@
 from models import db
 from datetime import datetime
+from .order_items import OrderItems
+
 
 class Order(db.Model):
     """Model representing an order with attributes and relationships."""  

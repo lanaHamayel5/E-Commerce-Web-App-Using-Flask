@@ -1,4 +1,5 @@
 from models import db
+from .product import Product
 
 class OrderItems(db.Model):
     """Represents an item in an order."""

@@ -1,5 +1,8 @@
 from models import db
 from datetime import datetime
+from .address import Address
+from .invoice import Invoice
+from .order import Order
 
 class User(db.Model):
     """Model representing a user with attributes and relationships."""    
