@@ -12,9 +12,7 @@ user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.route('/register', methods=['POST'])
 def register():
-    """
-    Registers a new user.
-    """
+    """ Registers a new user."""
     data = request.json
 
     if not data or not data.get('user_name') or not data.get('email') or not data.get('password'):
@@ -69,7 +67,7 @@ def login():
 
 
 @user_routes.route('/profile', methods=['GET'])
-@jwt_required()  # Requires JWT authentication
+@jwt_required()
 def profile():
     current_user_id = get_jwt_identity()
     

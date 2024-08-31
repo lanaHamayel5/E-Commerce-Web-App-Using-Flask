@@ -6,7 +6,7 @@ from models.schemas import ProductSchema
 from models import db
 
 
-# Create a Blueprint for user-related routes
+# Create a Blueprint for product-related routes
 product_routes = Blueprint('product_routes', __name__)
 
 @product_routes.route('/products',methods=['POST'])
@@ -22,10 +22,10 @@ def create_product():
         return jsonify({"message" : "You are not authorized to perform this action."}),403
     
     new_product = Product(
-        name = data['name'],
+        product_name = data['name'],
         price = data['price'],
         description = data['description'],
-        quantity = data['quantity']
+        product_quantity = data['quantity']
     )
     
     db.session.add(new_product)

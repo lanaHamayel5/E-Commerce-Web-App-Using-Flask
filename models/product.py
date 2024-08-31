@@ -8,9 +8,6 @@ class Product(db.Model):
     description = db.Column(db.String(300), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
 
-    # Remove this line
-    # order_items_id = db.Column(db.Integer, db.ForeignKey('orderitems.order_item_id'))
-
     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'))
 
     def __repr__(self):
