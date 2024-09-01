@@ -4,11 +4,16 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 from models.user import User
 from models.schemas import UserSchema
 from models import db
-
+import re
 
 # Create a Blueprint for user-related routes
 user_routes = Blueprint('user_routes', __name__)
 
+def is_valid_email(email):
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+def is_strong_password(password):
+    return len(password) >= 8
 
 @user_routes.route('/register', methods=['POST'])
 def register():
@@ -17,6 +22,12 @@ def register():
 
     if not data or not data.get('user_name') or not data.get('email') or not data.get('password'):
         return jsonify({"message": "User name, email, and password are required."}), 400
+
+    if not is_valid_email(data['email']):
+        return jsonify({"message": "Invalid email format."}), 400
+
+    if not is_strong_password(data['password']):
+        return jsonify({"message": "Password must be at least 8 characters long."}), 400
 
     if User.query.filter_by(email=data['email']).first():
         return jsonify({"message": "Email already exists."}), 409
@@ -30,8 +41,12 @@ def register():
         password_hash=hashed_password
     )
 
-    db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred while registering the user.", "error": str(e)}), 500
 
     return jsonify({"message": "User registered successfully."}), 201
 
@@ -40,20 +55,14 @@ def register():
 def login():
     """
     Authenticates a user by checking email and password.
-    
-    Request JSON should contain:
-    - 'email': the user's email address
-    - 'password': the user's password
-    
-    Returns:
-    - 200: login is successful, with a JWT token
-    - 401: The password is incorrect 
-    - 400: Bad request if the email or password is missing
     """
     data = request.json
     
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({'message': "Email and password are required."}), 400
+
+    if not is_valid_email(data['email']):
+        return jsonify({"message": "Invalid email format."}), 400
 
     user = User.query.filter_by(email=data['email']).first()
     
@@ -69,6 +78,7 @@ def login():
 @user_routes.route('/profile', methods=['GET'])
 @jwt_required()
 def profile():
+    """Fetch user profile details."""
     current_user_id = get_jwt_identity()
     
     user = User.query.get(current_user_id)

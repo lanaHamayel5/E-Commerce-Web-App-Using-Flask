@@ -12,4 +12,4 @@ class Product(db.Model):
 
     def __repr__(self):
         return (f"<Product(product_id={self.product_id}, product_name='{self.product_name}', "
-                f"price={self.price}, category_id={self.category_id})>")
+                f"price=${self.price}, category_id={self.category_id})>")
