@@ -20,8 +20,17 @@ def register():
     """ Registers a new user."""
     data = request.json
 
-    if not data or not data.get('user_name') or not data.get('email') or not data.get('password'):
-        return jsonify({"message": "User name, email, and password are required."}), 400
+    if not data:
+         return jsonify({"message": "User name, email, and password are required."}), 400
+        
+    if not data.get('name'):
+        return jsonify({"message": "User name is required."}), 400
+        
+    if not data.get('password'):
+        return jsonify({"message": "User password is required."}), 400
+        
+    if not data.get('email'):
+        return jsonify({"message": "User email is required."}), 400
 
     if not is_valid_email(data['email']):
         return jsonify({"message": "Invalid email format."}), 400
@@ -35,7 +44,7 @@ def register():
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
     new_user = User(
-        user_name=data['user_name'],
+        name=data['user_name'],
         email=data['email'],
         role=data.get('role', 'customer'),
         password_hash=hashed_password
@@ -58,14 +67,21 @@ def login():
     """
     data = request.json
     
-    if not data or not data.get('email') or not data.get('password'):
+    if not data :
         return jsonify({'message': "Email and password are required."}), 400
+    
+    if not data.get('email'):
+        return jsonify({'message': "Email is required."}), 400
+    
+    if  not data.get('password'):
+        return jsonify({'message': "password is required."}), 400
+    
 
     if not is_valid_email(data['email']):
         return jsonify({"message": "Invalid email format."}), 400
 
     user = User.query.filter_by(email=data['email']).first()
-    
+
     if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({"message": "Invalid email or password."}), 401
     
@@ -87,3 +103,67 @@ def profile():
     
     user_schema = UserSchema()
     return jsonify(user_schema.dump(user)), 200
+
+
+@user_routes.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    """Update the current user's profile information (requires authentication)."""
+    data = request.json
+    current_user_id = get_jwt_identity()
+    
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+    
+    if 'user_name' in data:
+        user.user_name = data['user_name']
+        
+    if 'email' in data:
+        if not is_valid_email(data['email']):
+            return jsonify({"message": "Invalid email format."}), 400
+        
+        # Check if the new email is already in use by another user
+        existing_user = User.query.filter_by(email=data['email']).first()
+        if existing_user and existing_user.user_id != user.user_id:
+            return jsonify({"message": "Email already exists."}), 409
+        
+        user.email = data['email']
+    
+    if 'password' in data:
+        if not is_strong_password(data['password']):
+            return jsonify({"message": "Password must be at least 8 characters long."}), 400
+        
+        hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
+        user.password_hash = hashed_password
+        
+    if 'role' in data:
+        user.role = data['role']
+    
+    # Commit changes to the database
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred while updating the profile.", "error": str(e)}), 500
+
+    # Serialize the updated user profile
+    user_schema = UserSchema()
+    return jsonify({"message": "Profile updated successfully.", "profile": user_schema.dump(user)}), 200
+
+
+@user_routes.route('/profile',methods=['DELETE'])
+@jwt_required()
+def delete_profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+    try:
+        db.session.delete(user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred while deleting the profile.", "error": str(e)}), 500
+    
+    return jsonify({"message": "Profile deleted successfully."}), 200

@@ -12,6 +12,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     # Links the schema to the corresponding SQLAlchemy models.
     class Meta:
         model = User
+        fields = ('user_name','email','role','created_at')
         
 class AddressSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
