@@ -44,7 +44,7 @@ def register():
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
     new_user = User(
-        name=data['user_name'],
+        user_name=data['name'],
         email=data['email'],
         role=data.get('role', 'customer'),
         password_hash=hashed_password
@@ -167,3 +167,10 @@ def delete_profile():
         return jsonify({"message": "An error occurred while deleting the profile.", "error": str(e)}), 500
     
     return jsonify({"message": "Profile deleted successfully."}), 200
+
+
+@user_routes.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    """Logs out the user by informing them to remove their token from the client side."""
+    return jsonify({"message": "Logout successful. Please remove your token from the client side."}), 200

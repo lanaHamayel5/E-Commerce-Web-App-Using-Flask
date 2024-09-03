@@ -4,6 +4,7 @@ from routes import register_routes
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import JWTManager
 from models.user import User  
+from models.category import Category
 from datetime import timedelta
 import os
 
@@ -39,6 +40,32 @@ def seed_data():
             db.session.add(user1)
         
         db.session.commit()
+        
+def seed_categories():
+    """Seed the database with initial categories."""
+    categories = [
+        {"name": "Living Room Furniture"},
+        {"name": "Office Furniture"},
+        {"name": "Bedroom Furniture"},
+        {"name": "Outdoor Furniture"},
+        {"name": "Home Decor"},
+        {"name": "Lighting"}
+    ]
+    
+    try:
+        with app.app_context():
+            for category in categories:
+                if not Category.query.filter_by(category_name=category['name']).first():
+                    new_category = Category(category_name=category['name'].order_by(category.id))
+                    db.session.add(new_category)
+            
+            db.session.commit()
+            print("Categories seeded successfully.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"An error occurred while seeding categories: {e}")
+
+
 
 def create_tables():
     """This function creates all the database tables."""
@@ -49,4 +76,5 @@ if __name__ == '__main__':
     with app.app_context():
         create_tables()
         seed_data()
+        seed_categories()
     app.run(debug=True)

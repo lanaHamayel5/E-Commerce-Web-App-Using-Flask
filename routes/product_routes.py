@@ -46,33 +46,36 @@ def get_product_by_id(product_id):
     return jsonify(product_schema.dump(product)), 200
 
 
-@product_routes.route('/products',methods=['POST'])
+@product_routes.route('/products', methods=['POST'])
 @jwt_required()
 def add_product():
-    """add a new product."""
+    """Add a new product."""
     data = request.json
     
-    if not data.get('name') or not isinstance(data.get('name'),str):
+    if not data.get('name') or not isinstance(data.get('name'), str):
         return jsonify({"message": "Product name must be a non-empty string."}), 400
     
-    if not data.get('price') or not isinstance(data.get('price'),(int,float)) or data.get('price') < 0:
-        return jsonify({"message": "Invalid price"}),400
+    if not data.get('price') or not isinstance(data.get('price'), (int, float)) or data.get('price') < 0:
+        return jsonify({"message": "Invalid price"}), 400
     
-    if not data.get('quantity') or not isinstance(data.get('quantity'),int) or data.get('quantity') < 0:
-        return jsonify({"message": "Invalid quantity"}),400
-      
+    if not data.get('quantity') or not isinstance(data.get('quantity'), int) or data.get('quantity') < 0:
+        return jsonify({"message": "Invalid quantity"}), 400
+    
+    if not data.get('category_id') or not isinstance(data.get('category_id'), int) or data.get('category_id') < 0:
+        return jsonify({"message": "Invalid category ID"}), 400
     
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
     
     if current_user.role != 'admin':
-        return jsonify({"message" : "You are not authorized to perform this action."}),403
-       
+        return jsonify({"message": "You are not authorized to perform this action."}), 403
+    
     new_product = Product(
-        product_name = data['name'],
-        price = data['price'],
-        description = data['description'],
-        product_quantity = data['quantity']
+        product_name=data['name'],
+        price=data['price'],
+        description=data['description'],
+        product_quantity=data['quantity'],
+        category_id=data['category_id']  # Include category_id
     )
     
     try:
@@ -83,7 +86,7 @@ def add_product():
         return jsonify({"message": "An error occurred while adding the product.", "error": str(e)}), 500
     
     return jsonify({"message": "Product created successfully.", "product_id": new_product.product_id}), 201
-    
+
     
 @product_routes.route('/products/<int:product_id>', methods=['PUT'])
 @jwt_required()
@@ -91,7 +94,7 @@ def update_product(product_id):
     """Update an existing product by its ID."""
     data = request.json
     
-     # Input Validation
+    # Input Validation
     if 'name' in data and (not isinstance(data['name'], str)):
         return jsonify({"message": "Invalid product name."}), 400
     
@@ -101,12 +104,14 @@ def update_product(product_id):
     if 'quantity' in data and (not isinstance(data['quantity'], int) or data['quantity'] < 0):
         return jsonify({"message": "Invalid quantity."}), 400
     
+    if 'category_id' in data and (not isinstance(data['category_id'], int) or data['category_id'] < 0):
+        return jsonify({"message": "Invalid category ID."}), 400
+    
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
     
     if user.role != 'admin':
         return jsonify({"message": "Access forbidden: Admins Only."}), 403
-    
     
     updated_product = Product.query.filter_by(product_id=product_id).first()
     
@@ -125,7 +130,10 @@ def update_product(product_id):
         
     if 'quantity' in data:
         updated_product.product_quantity = data['quantity']
-        
+    
+    if 'category_id' in data:
+        updated_product.category_id = data['category_id']
+    
     try:
         db.session.commit()
     except Exception as e:
@@ -134,6 +142,7 @@ def update_product(product_id):
     
     product_schema = ProductSchema()
     return jsonify(product_schema.dump(updated_product)), 200
+
 
 @product_routes.route('/products/<int:product_id>',methods=['DELETE'])
 @jwt_required()
