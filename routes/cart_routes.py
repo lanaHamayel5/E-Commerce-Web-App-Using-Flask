@@ -283,5 +283,3 @@ def clear_cart():
         return jsonify({'error': str(e)}), 500
 
     return jsonify({'message': 'Cart cleared successfully'}), 200
-
-

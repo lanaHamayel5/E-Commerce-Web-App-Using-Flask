@@ -37,4 +37,3 @@ class CategorySchema(ma.SQLAlchemyAutoSchema):
 class InvoiceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Invoice
-        

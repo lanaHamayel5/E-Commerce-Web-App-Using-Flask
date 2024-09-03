@@ -17,3 +17,4 @@ class OrderItems(db.Model):
         return (f"<OrderItems(order_item_id={self.order_item_id}, "
                 f"quantity={self.quantity}, product_id={self.product_id}, "
                 f"order_id={self.order_id})>")
+
