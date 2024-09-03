@@ -3,7 +3,5 @@ instance/
 venv/
 routes/__pycache__/
 __pycache__/
-env/
 migration/
 alembic.ini
-queries.sqlite3-query
