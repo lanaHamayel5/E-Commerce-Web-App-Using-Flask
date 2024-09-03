@@ -4,6 +4,6 @@ venv/
 routes/__pycache__/
 __pycache__/
 env/
-migrations/
-alembic.ini/
-queries.sqlite3-query/
+migration/
+alembic.ini
+queries.sqlite3-query
