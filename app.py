@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///db.
 
 # Configure JWT
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', b'|f\xa3\xf5\xc7=x\xa0\xca\xad[i\xaf\xde\x07\xfe\xfez"\xba\xcc\xec@\xf7\x1f\x19"|!\x9ah\x8f')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 
 jwt = JWTManager(app)
 
@@ -32,7 +32,7 @@ def seed_data():
 
     with app.app_context():
         if not User.query.filter_by(email="Omar12.amjad@gmail.com").first():
-            admin = User(user_name="Omar Amjad", email="Omar12.amjad@gmail.com", role='admin', password_hash=admin_hashed_password)
+            admin = User(user_name="Omar Hamayel", email="Omar12.amjad@gmail.com", role='admin', password_hash=admin_hashed_password)
             db.session.add(admin)
 
         if not User.query.filter_by(email="Ali.kareem@gmail.com").first():

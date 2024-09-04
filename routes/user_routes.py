@@ -116,8 +116,8 @@ def update_profile():
     if not user:
         return jsonify({"message": "User not found."}), 404
     
-    if 'user_name' in data:
-        user.user_name = data['user_name']
+    if 'name' in data:
+        user.user_name = data['name']
         
     if 'email' in data:
         if not is_valid_email(data['email']):

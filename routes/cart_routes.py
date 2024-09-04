@@ -1,14 +1,10 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.product import Product
-from models.user import User
 from models.order import Order
 from models.order_items import OrderItems
 from models.invoice import Invoice
 from models import db
-from decimal import Decimal
-
-
 
 # Create a Blueprint for cart-related routes
 cart_routes = Blueprint('cart_routes', __name__)
@@ -41,7 +37,7 @@ def get_cart():
     invoice = Invoice.query.filter_by(order_id=order.order_id).first()
     if not invoice:
         return jsonify({'message': 'No invoice found for the order'}), 404
-
+ 
     # Fetch order items and product details
     order_items = OrderItems.query.filter_by(order_id=order.order_id).all()
     products = []
@@ -88,7 +84,8 @@ def add_to_cart():
     # Extract products and order details from request data
     products = data.get('products', [])
     way_of_buying = data.get('way_of_buying', 'Online Payment')  # Default value
-    state = data.get('state', 'Pending')
+    
+    # status= data.get('status', 'Pending')
     
     for product_info in products:
         quantity = product_info.get('quantity')
@@ -98,7 +95,6 @@ def add_to_cart():
 
     # Check if an order already exists for the user, otherwise create a new one
     order = Order.query.filter_by(user_id=current_user, status='Pending').first()
-    
     if not order:
         order = Order(user_id=current_user, status='Pending')
         db.session.add(order)
