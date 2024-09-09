@@ -8,6 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the required Python packages without using cache to save space
+#Used to execute commands at build time (while the image is being created).
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the working directory
@@ -20,4 +21,5 @@ EXPOSE 5000
 ENV FLASK_APP=app.py
 
 # Command to start the Flask application, accessible on all network interfaces (0.0.0.0)
+# Used to specify the default command that runs when a container is started from the image.
 CMD ["flask", "run", "--host=0.0.0.0"]
