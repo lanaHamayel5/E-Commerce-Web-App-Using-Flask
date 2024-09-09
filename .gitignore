@@ -5,4 +5,4 @@ routes/__pycache__/
 __pycache__/
 migration/
 alembic.ini
-db.sqlite3
+db.sqlite3/
