@@ -64,7 +64,11 @@ def seed_categories():
     except Exception as e:
         db.session.rollback()
         print(f"An error occurred while seeding categories: {e}")
-
+# adding new route
+@app.route('/', methods=['GET'])
+@app.route('/home', methods=['GET'])
+def home():
+    return "<h1>Welcome to our website</h1>"
 
 
 def create_tables():
